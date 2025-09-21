@@ -14,10 +14,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const index = () => {
   return (
     <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-xl font-bold text-blue-500">
-        Welcome to Nativewind!
-      </Text>
-      <Link href="singup">create account</Link>
+      <Text className="font-[CairoBold]">مرحباً بك في تطبيقنا</Text>
+      <Text className="font-[Cairo]">مرحباً بك في تطبيقنا</Text>
+      <Link href="singup">حساب جديد</Link>
     </View>
   );
 };
