@@ -13,10 +13,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const index = () => {
   return (
-    <SafeAreaView>
-      <Text>Login here:</Text>
+    <View className="flex-1 items-center justify-center bg-white">
+      <Text className="text-xl font-bold text-blue-500">
+        Welcome to Nativewind!
+      </Text>
       <Link href="singup">create account</Link>
-    </SafeAreaView>
+    </View>
   );
 };
 
