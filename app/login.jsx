@@ -8,11 +8,13 @@ import {
 import React, { useState } from "react";
 import { Link } from "expo-router";
 import { Image } from "expo-image";
+import { useAuth } from "../utils/authContext";
 
 I18nManager.allowRTL(true);
 I18nManager.forceRTL(true);
 
 export default function LoginScreen() {
+  const { logIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -34,6 +36,7 @@ export default function LoginScreen() {
 
       {/* Input: Email */}
       <TextInput
+        type="email"
         value={email}
         onChangeText={setEmail}
         placeholder="البريد الإلكتروني"
@@ -52,7 +55,10 @@ export default function LoginScreen() {
       />
 
       {/* Login Button */}
-      <TouchableOpacity className="bg-primary-600 rounded-md py-3">
+      <TouchableOpacity
+        className="bg-primary-600 rounded-md py-3"
+        onPress={() => logIn(email, password)}
+      >
         <Text className="text-white text-center font-cairo_medium text-lg">
           تسجيل الدخول
         </Text>

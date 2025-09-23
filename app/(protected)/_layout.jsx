@@ -1,10 +1,10 @@
 import { Redirect, Stack } from "expo-router";
-import React from "react";
-
-const isLoggedIn = false;
+import { useAuth } from "../../utils/authContext";
 
 export default function ProtoctedLayout() {
-  if (!isLoggedIn) {
+  const { session } = useAuth();
+
+  if (session === null) {
     return <Redirect href="/login" />;
   }
 

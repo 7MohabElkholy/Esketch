@@ -12,6 +12,7 @@ import {
   Cairo_600SemiBold,
   Cairo_700Bold,
 } from "@expo-google-fonts/cairo";
+import { AuthProvider } from "../utils/authContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -34,13 +35,13 @@ export default function RootLayout() {
   }
 
   return (
-    <React.Fragment>
+    <AuthProvider>
       <StatusBar style="auto" />
       <Stack>
         <Stack.Screen name="(protected)" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="singup" options={{ headerShown: false }} />
       </Stack>
-    </React.Fragment>
+    </AuthProvider>
   );
 }

@@ -33,7 +33,9 @@
   "private": true,
   "devDependencies": {
     "babel-preset-expo": "^54.0.2",
+    "expo-env": "^1.1.1",
     "prettier-plugin-tailwindcss": "^0.5.11",
+    "react-native-dotenv": "^3.4.11",
     "tailwindcss": "^3.4.17"
   }
 }
