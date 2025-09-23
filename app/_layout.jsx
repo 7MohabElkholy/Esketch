@@ -1,16 +1,26 @@
-import { useFonts } from "expo-font";
+// import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import "../global.css";
 
+import {
+  useFonts,
+  Cairo_400Regular,
+  Cairo_500Medium,
+  Cairo_600SemiBold,
+  Cairo_700Bold,
+} from "@expo-google-fonts/cairo";
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    Cairo: require("../assets/fonts/Cairo-Regular.ttf"),
-    CairoBold: require("../assets/fonts/Cairo-Bold.ttf"),
+    Cairo_400Regular,
+    Cairo_500Medium,
+    Cairo_600SemiBold,
+    Cairo_700Bold,
   });
 
   useEffect(() => {
@@ -27,13 +37,9 @@ export default function RootLayout() {
     <React.Fragment>
       <StatusBar style="auto" />
       <Stack>
-        <Stack.Protected guard={false}>
-          <Stack.Screen name="(taps)" options={{ headerShown: false }} />
-        </Stack.Protected>
-        <Stack.Protected guard={true}>
-          <Stack.Screen name="login" options={{ headerShown: false }} />
-          <Stack.Screen name="singup" options={{ headerShown: false }} />
-        </Stack.Protected>
+        <Stack.Screen name="(protected)" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="singup" options={{ headerShown: false }} />
       </Stack>
     </React.Fragment>
   );
