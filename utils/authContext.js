@@ -58,7 +58,10 @@ export function AuthProvider({ children }) {
   const signup = async (email, password) => {
     console.log("Signing up with", email, password);
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
     if (error) {
       alert(error.message);
       console.log(error);
