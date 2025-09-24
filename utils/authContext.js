@@ -7,10 +7,13 @@ export const AuthContext = createContext({
   logIn: () => {},
   logOut: () => {},
   signup: async () => {},
+  userData: {},
+  updatedUserData: async () => {},
 });
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -18,6 +21,22 @@ export function AuthProvider({ children }) {
     // load session on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+
+      if (session?.user) {
+        supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single()
+          .then(({ data, error }) => {
+            if (error) {
+              console.log("Error fetching user data:", error);
+            } else {
+              setUserData(data);
+            }
+          });
+      }
+
       setLoading(false);
     });
 
@@ -78,8 +97,27 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const updatedUserData = async (newData) => {
+    if (!session?.user) return;
+    const { data, error } = await supabase
+      .from("profiles")
+      .update(newData)
+      .eq("id", session.user.id)
+      .select()
+      .single();
+    if (error) {
+      console.log("Error updating user data:", error);
+    } else {
+      {
+        setUserData(data);
+      }
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ session, logIn, logOut, signup }}>
+    <AuthContext.Provider
+      value={{ session, logIn, logOut, signup, userData, updatedUserData }}
+    >
       {children}
     </AuthContext.Provider>
   );
