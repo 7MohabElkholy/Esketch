@@ -78,7 +78,7 @@ export default function HomeScreen() {
         {[
           { label: "المحاضرات", icon: "book", href: "/subjects" },
           { label: "الاختبارات", icon: "check-circle", href: "/quizzes" },
-          { label: "التقارير", icon: "archive" },
+          { label: "التقارير", icon: "archive", href: "/reports" },
         ].map((item, idx) => (
           <TouchableOpacity
             key={idx}

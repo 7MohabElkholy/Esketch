@@ -9,11 +9,13 @@ import React, { useMemo, useLayoutEffect, useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import { supabase } from "../../../../utils/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "../../../../utils/authContext";
 
 const QuizScreen = () => {
   const router = useRouter();
   const navigation = useNavigation();
   const { quizzData } = useLocalSearchParams();
+  const { session } = useAuth();
 
   const [fetchedData, setFetchedData] = useState(null);
   const [selectedAnswers, setSelectedAnswers] = useState({});
@@ -96,7 +98,7 @@ const QuizScreen = () => {
   };
 
   // Handle quiz submission
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!fetchedData?.questions) return;
 
     setSubmitting(true);
@@ -114,6 +116,13 @@ const QuizScreen = () => {
     console.log("Quiz Results:");
     console.log("Selected Answers:", selectedAnswers);
     console.log(`Score: ${score} / ${total}`);
+
+    const { error } = await supabase.from("reports").insert({
+      user_id: session.user.id,
+      test_id: quizz.id,
+      score,
+      answers: selectedAnswers, // e.g. { MCQ1: 2, MCQ2: 0 }
+    });
 
     setSubmitting(false);
     setSubmitted(true); // lock answers & show results
