@@ -8,6 +8,7 @@ import {
 import React, { useMemo, useLayoutEffect, useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import { supabase } from "../../../../utils/supabase";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const QuizScreen = () => {
   const router = useRouter();
@@ -50,7 +51,18 @@ const QuizScreen = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+
       try {
+        // Try cache first
+        const cached = await AsyncStorage.getItem(`quiz_${quizz.id}`);
+        if (cached) {
+          console.log("Loaded from cache ✅");
+          setFetchedData(JSON.parse(cached));
+          setLoading(false);
+          return;
+        }
+
+        // If no cache → fetch from Supabase
         const { data: tests, error } = await supabase
           .from("tests")
           .select("*")
@@ -58,9 +70,14 @@ const QuizScreen = () => {
           .single();
 
         if (error) throw error;
+
+        console.log("Fetched from Supabase 🌐");
         setFetchedData(tests);
+
+        // Save to cache
+        await AsyncStorage.setItem(`quiz_${quizz.id}`, JSON.stringify(tests));
       } catch (error) {
-        console.error("Error fetching quiz data:", error);
+        console.error("Error fetching quiz:", error);
       } finally {
         setLoading(false);
       }
