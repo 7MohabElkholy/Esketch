@@ -10,6 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { supabase } from "../../../utils/supabase";
 import { useRouter } from "expo-router";
+import Octicons from "@expo/vector-icons/Octicons";
+import { useAuth } from "../../../utils/authContext";
 
 I18nManager.allowRTL(true);
 I18nManager.forceRTL(true);
@@ -18,23 +20,46 @@ const Quizzes = () => {
   const [quizzes, setQuizzes] = React.useState([]);
   const [groupedQuizzes, setGroupedQuizzes] = React.useState({});
   const router = useRouter();
+  const { session } = useAuth();
 
   // Fetch tests from Supabase
   React.useEffect(() => {
     const fetchQuizzes = async () => {
       try {
-        const { data: tests, error } = await supabase
+        // fetch all tests
+        const { data: tests, error: testsError } = await supabase
           .from("tests")
           .select("id, title, subject");
 
-        if (error) throw error;
-        setQuizzes(tests || []);
+        if (testsError) throw testsError;
+
+        // fetch reports for the logged-in user
+        const { data: reports, error: reportsError } = await supabase
+          .from("reports")
+          .select("test_id")
+          .eq("user_id", session?.user.id);
+
+        if (reportsError) throw reportsError;
+
+        // build a Set for O(1) lookup
+        const takenSet = new Set(reports.map((r) => r.test_id));
+
+        // attach taken flag to quizzes
+        const quizzesWithStatus = tests.map((q) => ({
+          ...q,
+          taken: takenSet.has(q.id),
+        }));
+
+        setQuizzes(quizzesWithStatus);
       } catch (error) {
         console.error("Error fetching quizzes:", error);
       }
     };
-    fetchQuizzes();
-  }, []);
+
+    if (session?.user) {
+      fetchQuizzes();
+    }
+  }, [session]);
 
   // Group by subject
   React.useEffect(() => {
@@ -90,14 +115,20 @@ const Quizzes = () => {
                 key={test.id}
                 onPress={() =>
                   router.push(
-                    `/(protected)/quizzes/${test.id}?quizzData=${encodeURIComponent(JSON.stringify(test))}`
+                    `/(protected)/quizzes/${test.id}?quizzData=${encodeURIComponent(
+                      JSON.stringify(test)
+                    )}`
                   )
                 }
-                className="bg-primary-50 rounded-xl p-4 mb-2"
+                className="bg-primary-50 rounded-xl p-4 mb-2 flex-row items-center justify-between"
               >
                 <Text className="font-cairo_semibold text-lg text-neutral-800">
                   {test.title}
                 </Text>
+
+                {test.taken && (
+                  <Octicons name="check-circle" size={20} color="green" />
+                )}
               </TouchableOpacity>
             ))}
           </View>

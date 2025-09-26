@@ -117,12 +117,43 @@ const QuizScreen = () => {
     console.log("Selected Answers:", selectedAnswers);
     console.log(`Score: ${score} / ${total}`);
 
-    const { error } = await supabase.from("reports").insert({
+    // 1. Insert report
+    const { error: reportError } = await supabase.from("reports").insert({
       user_id: session.user.id,
       test_id: quizz.id,
       score,
       answers: selectedAnswers, // e.g. { MCQ1: 2, MCQ2: 0 }
     });
+
+    if (reportError) {
+      console.error("Error inserting report:", reportError);
+      setSubmitting(false);
+      return;
+    }
+
+    // 2. Detect test type from ID (logsticMCQQ1 → MCQ)
+    let testType = "OTHER";
+    if (quizz.id.includes("MCQ")) testType = "MCQ";
+    else if (quizz.id.includes("TFQ")) testType = "TFQ";
+
+    // 3. Upsert into daily_progress
+    const { error: progressError } = await supabase
+      .from("daily_progress")
+      .upsert(
+        {
+          user_id: session.user.id,
+          date: new Date().toISOString().slice(0, 10), // yyyy-mm-dd
+          test_type: testType,
+          completed: true,
+        },
+        { onConflict: "user_id,date,test_type" } // ensures uniqueness
+      );
+
+    if (progressError) {
+      console.error("Error updating daily progress:", progressError);
+    } else {
+      console.log(`Daily progress updated for type: ${testType}`);
+    }
 
     setSubmitting(false);
     setSubmitted(true); // lock answers & show results

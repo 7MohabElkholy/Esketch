@@ -10,6 +10,9 @@ import { Image } from "expo-image";
 import { useAuth } from "../../../utils/authContext";
 import { useRouter } from "expo-router";
 import Octicons from "@expo/vector-icons/Octicons";
+import { supabase } from "../../../utils/supabase";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
 // Ensure RTL globally
 I18nManager.allowRTL(true);
@@ -38,6 +41,44 @@ export default function HomeScreen() {
       cover: require("../../../assets/images/markting_cover.svg"),
     },
   ]);
+  const [progress, setProgress] = React.useState({ completed: 0, total: 0 });
+
+  const fetchProgress = async () => {
+    const { data, error } = await supabase
+      .from("daily_progress")
+      .select("test_type, completed")
+      .eq("user_id", userData.id)
+      .eq("date", new Date().toISOString().slice(0, 10));
+
+    if (error) {
+      console.error("Error fetching progress:", error);
+      return;
+    }
+
+    const required = ["MCQ", "TFQ"]; // <-- your daily goals
+    const done = data.filter((p) => p.completed).map((p) => p.test_type);
+
+    const completedCount = required.filter((t) => done.includes(t)).length;
+    const totalCount = required.length;
+
+    setProgress({ completed: completedCount, total: totalCount });
+  };
+
+  // run once when userData changes
+  React.useEffect(() => {
+    if (userData?.id) {
+      fetchProgress();
+    }
+  }, [userData]);
+
+  // re-run whenever screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      if (userData?.id) {
+        fetchProgress();
+      }
+    }, [userData])
+  );
 
   return (
     <ScrollView
@@ -66,10 +107,13 @@ export default function HomeScreen() {
           تقدمك اليوم
         </Text>
         <Text className="text-primary-100 font-cairo text-sm mb-4">
-          لقد أنجزت 3 من أصل 5 مهام
+          لقد أنجزت {progress.completed} من أصل {progress.total} مهام
         </Text>
         <View className="bg-white h-3 w-full rounded-full overflow-hidden">
-          <View className="bg-primary-400 h-3 w-[60%]" />
+          <View
+            className="bg-primary-400 h-3"
+            style={{ width: `${(progress.completed / progress.total) * 100}%` }}
+          />
         </View>
       </View>
 
