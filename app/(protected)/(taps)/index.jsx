@@ -14,7 +14,12 @@ import Octicons from "@expo/vector-icons/Octicons";
 import { supabase } from "../../../utils/supabase";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
-import { Animated, Easing } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
 
 // Ensure RTL globally
 I18nManager.allowRTL(true);
@@ -34,9 +39,16 @@ export default function HomeScreen() {
 
   const [lectures, setLectures] = React.useState([]);
   const [loadingLectures, setLoadingLectures] = React.useState(true);
-  const [progress, setProgress] = React.useState({ completed: 0, total: 0 });
+  const [progress, setProgress] = React.useState({
+    completed: 0,
+    total: 2,
+    tasks: [
+      { type: "MCQ", label: "اختبار اختيار من متعدد" },
+      { type: "TFQ", label: "اختبار صح/خطأ" },
+    ],
+  });
   const [showTasks, setShowTasks] = React.useState(false);
-  const animatedHeight = React.useRef(new Animated.Value(0)).current;
+  const animatedHeight = useSharedValue(0);
   const [upcomingEvents, setUpcomingEvents] = React.useState([]);
 
   const fetchUpcoming = async () => {
@@ -58,13 +70,19 @@ export default function HomeScreen() {
   }, []);
 
   React.useEffect(() => {
-    Animated.timing(animatedHeight, {
-      toValue: showTasks ? progress.tasks.length * 65 : 0, // 50px per task
-      duration: 300,
-      easing: Easing.out(Easing.ease),
-      useNativeDriver: false,
-    }).start();
-  }, [showTasks, progress]);
+    animatedHeight.value = withTiming(
+      showTasks ? (progress.tasks?.length || 0) * 65 : 0, // 65px per task
+      {
+        duration: 300,
+        easing: Easing.out(Easing.ease),
+      }
+    );
+  }, [showTasks, progress.tasks]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    height: animatedHeight.value,
+    overflow: "hidden",
+  }));
 
   const fetchLatestLectures = async () => {
     const { data, error } = await supabase
@@ -117,14 +135,12 @@ export default function HomeScreen() {
     });
   };
 
-  // run once when userData changes
   React.useEffect(() => {
     if (userData?.id) {
       fetchProgress();
     }
   }, [userData]);
 
-  // re-run whenever screen is focused
   useFocusEffect(
     useCallback(() => {
       if (userData?.id) {
@@ -135,7 +151,7 @@ export default function HomeScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-background px-6 pt-12 "
+      className="flex-1 bg-background px-6 pt-12"
       showsVerticalScrollIndicator={false}
     >
       {/* Header */}
@@ -174,7 +190,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Expandable tasks */}
-        <Animated.View style={{ height: animatedHeight, overflow: "hidden" }}>
+        <Animated.View style={animatedStyle}>
           {progress.tasks?.map((task) => (
             <View
               key={task.type}
@@ -203,9 +219,7 @@ export default function HomeScreen() {
             key={idx}
             className="bg-primary-50 rounded-xl items-center justify-center p-4 w-[30%] shadow-sm"
             onPress={() => {
-              if (item.href) {
-                router.push(item.href);
-              }
+              if (item.href) router.push(item.href);
             }}
           >
             <Octicons name={item.icon} size={24} color="#000000" />
@@ -247,20 +261,8 @@ export default function HomeScreen() {
           </View>
         ))
       )}
-      {/* <TouchableOpacity className="bg-primary-50 p-5 rounded-xl mb-8 shadow-sm">
-        <Text className="font-cairo_bold text-neutral-800 text-base mb-2">
-          اختبار قادم
-        </Text>
-        <Text className="font-cairo text-neutral-600 text-sm">
-          اختبار مادة الاقتصاد الجزئي
-        </Text>
-        <Text className="font-cairo_semibold text-primary-600 mt-2">
-          غداً - الساعة 10 صباحاً
-        </Text>
-      </TouchableOpacity> */}
 
       {/* Recent Lectures */}
-
       <Text className="font-cairo_bold text-lg text-neutral-800 mb-4">
         المحاضرات الأخيرة
       </Text>

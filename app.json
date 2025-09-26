@@ -12,21 +12,36 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "updates": {
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/3947631c-b826-4565-9116-782a5f0427da"
+    },
     "ios": {
+      "bundleIdentifier": "com.mohabelkholy.esketch",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.mohabelkholy.esketch",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": []
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
     "plugins": ["expo-router"],
-    "scheme": "esketch"
+    "scheme": "esketch",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3947631c-b826-4565-9116-782a5f0427da"
+      }
+    }
   }
 }
