@@ -7,6 +7,7 @@ export default function Layout() {
       <Tabs.Screen
         name="index"
         options={{
+          animation: "shift",
           headerShown: false,
           tabBarShowLabel: false,
 
@@ -19,6 +20,7 @@ export default function Layout() {
       <Tabs.Screen
         name="quizzes"
         options={{
+          animation: "shift",
           headerShown: false,
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
@@ -30,6 +32,7 @@ export default function Layout() {
       <Tabs.Screen
         name="subjects"
         options={{
+          animation: "shift",
           headerShown: false,
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
@@ -41,6 +44,7 @@ export default function Layout() {
       <Tabs.Screen
         name="settigns"
         options={{
+          animation: "shift",
           headerShown: false,
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (

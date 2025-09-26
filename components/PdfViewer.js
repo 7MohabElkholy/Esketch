@@ -1,3 +1,4 @@
+//components\PdfViewer.js
 import React, { useEffect, useState } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { WebView } from "react-native-webview";
@@ -11,19 +12,28 @@ export default function PdfViewer({ pdfUrl }) {
 
     (async () => {
       try {
-        const localPath = FileSystem.cacheDirectory + "temp.pdf";
+        // Generate a unique file name from URL
+        const fileName = pdfUrl.split("/").pop() || "temp.pdf";
+        const localPath = FileSystem.cacheDirectory + fileName;
 
-        // Download PDF
-        const { uri } = await FileSystem.downloadAsync(pdfUrl, localPath);
-        console.log("Downloaded file:", uri);
+        let uri = localPath;
 
-        // Convert to base64
+        // ✅ 1. Check if file exists in cache
+        const fileInfo = await FileSystem.getInfoAsync(localPath);
+        if (!fileInfo.exists) {
+          console.log("File not cached. Downloading...");
+          const result = await FileSystem.downloadAsync(pdfUrl, localPath);
+          uri = result.uri;
+        } else {
+          console.log("Loaded from cache:", localPath);
+        }
+
+        // ✅ 2. Convert to base64
         const base64 = await FileSystem.readAsStringAsync(uri, {
           encoding: FileSystem.EncodingType.Base64,
         });
-        const dataUrl = `data:application/pdf;base64,${base64}`;
 
-        // Build HTML with PDF.js
+        // ✅ 3. Build HTML with PDF.js
         const html = `
 <!DOCTYPE html>
 <html>
