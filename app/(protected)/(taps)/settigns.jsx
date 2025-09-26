@@ -96,6 +96,15 @@ export default function AccountSettingsScreen() {
         </Text>
       </TouchableOpacity>
 
+      <View className="mt-8">
+        <Text className="font-cairo_bold text-lg">برمجة وتطوير</Text>
+        <Text className="font-cairo_medium text-base">مهاب الخولي</Text>
+        <Text className="font-cairo text-neutral-500">
+          في حالة وجود شكاوي او اقتراحات بالرجاء التواصل على 01551152503
+        </Text>
+        <Text className="font-cairo text-neutral-500">إصدار رقم (1.0.0)</Text>
+      </View>
+
       {/* Edit Profile Modal */}
       <Modal visible={editVisible} transparent animationType="slide">
         <View className="flex-1 bg-black/50 justify-center items-center">

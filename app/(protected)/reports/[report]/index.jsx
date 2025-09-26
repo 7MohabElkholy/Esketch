@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, ActivityIndicator } from "react-native";
 import React, { useEffect, useState, useLayoutEffect } from "react";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { supabase } from "../../../../utils/supabase";
@@ -58,8 +58,11 @@ const ReportScreen = () => {
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center">
-        <Text>Loading report...</Text>
+      <View className="flex-1 justify-center items-center bg-background">
+        <ActivityIndicator size="large" color="#3f9ef2" />
+        <Text className="mt-4 font-cairo text-gray-500">
+          جاري تحميل التقرير...
+        </Text>
       </View>
     );
   }
@@ -67,7 +70,7 @@ const ReportScreen = () => {
   if (!fetchedReport) {
     return (
       <View className="flex-1 justify-center items-center">
-        <Text>Report not found</Text>
+        <Text>لم نجد التقرير</Text>
       </View>
     );
   }

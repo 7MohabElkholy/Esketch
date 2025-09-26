@@ -45,7 +45,15 @@ export default function LectureList() {
     setGroupedLectures(grouped);
   }, [lectures]);
 
-  if (loading) return <ActivityIndicator style={{ flex: 1 }} />;
+  if (loading)
+    return (
+      <View className="flex-1 justify-center items-center bg-background">
+        <ActivityIndicator size="large" color="#3f9ef2" />
+        <Text className="mt-4 font-cairo text-gray-500">
+          جاري تحميل المحاضرات...
+        </Text>
+      </View>
+    );
 
   if (lectures.length === 0) {
     <SafeAreaView className="flex-1 bg-background px-6 justify-center">
