@@ -31,32 +31,31 @@ const coverImages = {
 export default function HomeScreen() {
   const { userData } = useAuth();
   const router = useRouter();
-  // const [lectures, setLectures] = React.useState([
-  //   {
-  //     id: 1,
-  //     title: "المحاضرة الاولى",
-  //     subject: "الاقتصاد الجزئي",
-  //     cover: require("../../../assets/images/finance_cover.svg"),
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "المحاضرة الثانية",
-  //     subject: "الاقتصاد الجزئي",
-  //     cover: require("../../../assets/images/finance_cover.svg"),
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "المحاضرة الاولى",
-  //     subject: "التسويق",
-  //     cover: require("../../../assets/images/markting_cover.svg"),
-  //   },
-  // ]);
 
   const [lectures, setLectures] = React.useState([]);
   const [loadingLectures, setLoadingLectures] = React.useState(true);
   const [progress, setProgress] = React.useState({ completed: 0, total: 0 });
   const [showTasks, setShowTasks] = React.useState(false);
   const animatedHeight = React.useRef(new Animated.Value(0)).current;
+  const [upcomingEvents, setUpcomingEvents] = React.useState([]);
+
+  const fetchUpcoming = async () => {
+    const { data, error } = await supabase
+      .from("upcoming_events")
+      .select("id, title, description, date_text")
+      .order("id", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching upcoming tests:", error);
+      return;
+    }
+
+    setUpcomingEvents(data || []);
+  };
+
+  React.useEffect(() => {
+    fetchUpcoming();
+  }, []);
 
   React.useEffect(() => {
     Animated.timing(animatedHeight, {
@@ -218,7 +217,37 @@ export default function HomeScreen() {
       </View>
 
       {/* Upcoming Test */}
-      <TouchableOpacity className="bg-primary-50 p-5 rounded-xl mb-8 shadow-sm">
+      {upcomingEvents.length === 0 ? (
+        <View className="bg-primary-50 p-5 rounded-xl mb-4 shadow-sm">
+          <Text className="font-cairo_bold text-neutral-800 text-base mb-2">
+            لا توجد احداث قادمة
+          </Text>
+          <Text className="font-cairo text-neutral-600 text-sm">
+            لا توجد كويزات او تسليمات قريبة
+          </Text>
+          <Text className="font-cairo_semibold text-primary-600 mt-2">
+            استمتع بوقتك!
+          </Text>
+        </View>
+      ) : (
+        upcomingEvents.map((event) => (
+          <View
+            key={event.id}
+            className="bg-primary-50 p-5 rounded-xl mb-4 shadow-sm"
+          >
+            <Text className="font-cairo_bold text-neutral-800 text-base mb-2">
+              {event.title}
+            </Text>
+            <Text className="font-cairo text-neutral-600 text-sm">
+              {event.description}
+            </Text>
+            <Text className="font-cairo_semibold text-primary-600 mt-2">
+              {event.date_text}
+            </Text>
+          </View>
+        ))
+      )}
+      {/* <TouchableOpacity className="bg-primary-50 p-5 rounded-xl mb-8 shadow-sm">
         <Text className="font-cairo_bold text-neutral-800 text-base mb-2">
           اختبار قادم
         </Text>
@@ -228,7 +257,7 @@ export default function HomeScreen() {
         <Text className="font-cairo_semibold text-primary-600 mt-2">
           غداً - الساعة 10 صباحاً
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       {/* Recent Lectures */}
 
