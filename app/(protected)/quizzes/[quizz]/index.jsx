@@ -42,12 +42,12 @@ const QuizScreen = () => {
   // Set header title
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: quizz.title || "Quiz",
+      title: quizz.subject || "Quiz",
       headerTitleStyle: {
         fontFamily: "Cairo_400Regular",
       },
     });
-  }, [navigation, quizz?.title]);
+  }, [navigation, quizz?.subject]);
 
   // Fetch quiz questions
   useEffect(() => {

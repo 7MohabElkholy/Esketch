@@ -36,7 +36,7 @@ const ReportsListScreen = () => {
 
         const { data, error } = await supabase
           .from("reports")
-          .select("id, score, created_at, tests(title)")
+          .select("id, score, created_at, tests(title, subject)")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false });
 
@@ -108,9 +108,10 @@ const ReportsListScreen = () => {
           <Text className="font-cairo_semibold text-lg">
             {report.tests.title}
           </Text>
-          <Text className="text-gray-500">
-            Score: {report.score} | Date:{" "}
-            {new Date(report.created_at).toLocaleDateString()}
+          <Text className="text-gray-500 font-cairo">
+            الدرجة: {report.score} | التاريخ:{" "}
+            {new Date(report.created_at).toLocaleDateString()} |{" "}
+            {report.tests.subject}
           </Text>
         </TouchableOpacity>
       ))}
