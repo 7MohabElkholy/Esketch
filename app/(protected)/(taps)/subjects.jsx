@@ -103,26 +103,3 @@ export default function LectureList() {
     </SafeAreaView>
   );
 }
-// <FlatList
-//   data={lectures}
-//   keyExtractor={(item) => item.id}
-//   renderItem={({ item }) => (
-//     <TouchableOpacity
-//       style={{ padding: 16, borderBottomWidth: 1, borderColor: "#eee" }}
-//       onPress={() =>
-//         router.push(`/(protected)/subjects/${item.id}?url=${item.pdf_url}`)
-//       }
-//       // onPress={() =>
-//       //   navigation.navigate("PdfViewer", {
-//       //     url: item.pdf_url,
-//       //     title: item.title,
-//       //   })
-//       // }
-//     >
-//       <Text style={{ fontWeight: "600", fontSize: 16 }}>{item.title}</Text>
-//       <Text style={{ color: "#666", marginTop: 4 }}>
-//         {new Date(item.created_at).toLocaleDateString()}
-//       </Text>
-//     </TouchableOpacity>
-//   )}
-// />

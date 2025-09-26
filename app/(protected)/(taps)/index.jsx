@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   I18nManager,
+  ActivityIndicator,
 } from "react-native";
 import { Image } from "expo-image";
 import { useAuth } from "../../../utils/authContext";
@@ -19,29 +20,40 @@ import { Animated, Easing } from "react-native";
 I18nManager.allowRTL(true);
 I18nManager.forceRTL(true);
 
+const coverImages = {
+  finance_cover: require("../../../assets/covers/finance_cover.svg"),
+  markting_cover: require("../../../assets/covers/markting_cover.svg"),
+  accounting_cover: require("../../../assets/covers/accounting_cover.svg"),
+  law_cover: require("../../../assets/covers/law_cover.svg"),
+  logistics_cover: require("../../../assets/covers/logistics_cover.svg"),
+};
+
 export default function HomeScreen() {
   const { userData } = useAuth();
   const router = useRouter();
-  const [lectures, setLectures] = React.useState([
-    {
-      id: 1,
-      title: "المحاضرة الاولى",
-      subject: "الاقتصاد الجزئي",
-      cover: require("../../../assets/images/finance_cover.svg"),
-    },
-    {
-      id: 2,
-      title: "المحاضرة الثانية",
-      subject: "الاقتصاد الجزئي",
-      cover: require("../../../assets/images/finance_cover.svg"),
-    },
-    {
-      id: 3,
-      title: "المحاضرة الاولى",
-      subject: "التسويق",
-      cover: require("../../../assets/images/markting_cover.svg"),
-    },
-  ]);
+  // const [lectures, setLectures] = React.useState([
+  //   {
+  //     id: 1,
+  //     title: "المحاضرة الاولى",
+  //     subject: "الاقتصاد الجزئي",
+  //     cover: require("../../../assets/images/finance_cover.svg"),
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "المحاضرة الثانية",
+  //     subject: "الاقتصاد الجزئي",
+  //     cover: require("../../../assets/images/finance_cover.svg"),
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "المحاضرة الاولى",
+  //     subject: "التسويق",
+  //     cover: require("../../../assets/images/markting_cover.svg"),
+  //   },
+  // ]);
+
+  const [lectures, setLectures] = React.useState([]);
+  const [loadingLectures, setLoadingLectures] = React.useState(true);
   const [progress, setProgress] = React.useState({ completed: 0, total: 0 });
   const [showTasks, setShowTasks] = React.useState(false);
   const animatedHeight = React.useRef(new Animated.Value(0)).current;
@@ -54,6 +66,26 @@ export default function HomeScreen() {
       useNativeDriver: false,
     }).start();
   }, [showTasks, progress]);
+
+  const fetchLatestLectures = async () => {
+    const { data, error } = await supabase
+      .from("lectures")
+      .select("id, title, subject, pdf_path, created_at, cover")
+      .order("created_at", { ascending: false })
+      .limit(3);
+
+    if (error) {
+      console.error("Error fetching latest lectures:", error);
+      return;
+    }
+
+    setLectures(data);
+    setLoadingLectures(false);
+  };
+
+  React.useEffect(() => {
+    fetchLatestLectures();
+  }, []);
 
   const fetchProgress = async () => {
     const { data, error } = await supabase
@@ -199,37 +231,50 @@ export default function HomeScreen() {
       </TouchableOpacity>
 
       {/* Recent Lectures */}
+
       <Text className="font-cairo_bold text-lg text-neutral-800 mb-4">
         المحاضرات الأخيرة
       </Text>
-      <ScrollView
-        className="pb-24"
-        horizontal
-        showsHorizontalScrollIndicator={false}
-      >
-        {lectures.map((lecture) => (
-          <TouchableOpacity
-            key={lecture.id}
-            className="bg-primary-50 rounded-xl w-40 h-48 mr-4 shadow-sm p-3"
-          >
-            <Image
-              source={lecture.cover}
-              style={{
-                width: 100,
-                height: 100,
-                alignSelf: "center",
-              }}
-              contentFit="contain"
-            />
-            <Text className="font-cairo_semibold text-neutral-800 text-sm">
-              {lecture.title}
-            </Text>
-            <Text className="font-cairo text-neutral-500 text-xs">
-              {lecture.subject}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+
+      {loadingLectures ? (
+        <ActivityIndicator size="small" color="#3f9ef2" />
+      ) : lectures.length === 0 ? (
+        <Text className="font-cairo text-neutral-500">لا توجد محاضرات بعد</Text>
+      ) : (
+        <ScrollView
+          className="pb-24"
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        >
+          {lectures.map((lecture) => (
+            <TouchableOpacity
+              key={lecture.id}
+              className="bg-primary-50 rounded-xl w-40 h-48 mr-4 shadow-sm p-3"
+              onPress={() =>
+                router.push(
+                  `/(protected)/subjects/${lecture.subject}?url=${lecture.pdf_path}`
+                )
+              }
+            >
+              <Image
+                source={coverImages[lecture.cover] || coverImages.finance_cover}
+                style={{
+                  width: 100,
+                  height: 100,
+                  alignSelf: "center",
+                }}
+                contentFit="contain"
+              />
+              <Text className="font-cairo_semibold text-neutral-800 text-sm">
+                {lecture.title}
+              </Text>
+              <Text className="font-cairo text-neutral-500 text-xs">
+                {lecture.subject.slice(0, 20)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
     </ScrollView>
   );
 }
