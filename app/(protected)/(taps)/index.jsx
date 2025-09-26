@@ -13,6 +13,7 @@ import Octicons from "@expo/vector-icons/Octicons";
 import { supabase } from "../../../utils/supabase";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
+import { Animated, Easing } from "react-native";
 
 // Ensure RTL globally
 I18nManager.allowRTL(true);
@@ -42,6 +43,17 @@ export default function HomeScreen() {
     },
   ]);
   const [progress, setProgress] = React.useState({ completed: 0, total: 0 });
+  const [showTasks, setShowTasks] = React.useState(false);
+  const animatedHeight = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    Animated.timing(animatedHeight, {
+      toValue: showTasks ? progress.tasks.length * 65 : 0, // 50px per task
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: false,
+    }).start();
+  }, [showTasks, progress]);
 
   const fetchProgress = async () => {
     const { data, error } = await supabase
@@ -55,13 +67,23 @@ export default function HomeScreen() {
       return;
     }
 
-    const required = ["MCQ", "TFQ"]; // <-- your daily goals
+    const requiredTasks = [
+      { type: "MCQ", label: "اختبار اختيار من متعدد" },
+      { type: "TFQ", label: "اختبار صح/خطأ" },
+    ];
+
     const done = data.filter((p) => p.completed).map((p) => p.test_type);
 
-    const completedCount = required.filter((t) => done.includes(t)).length;
-    const totalCount = required.length;
+    const tasks = requiredTasks.map((task) => ({
+      ...task,
+      completed: done.includes(task.type),
+    }));
 
-    setProgress({ completed: completedCount, total: totalCount });
+    setProgress({
+      tasks,
+      completed: tasks.filter((t) => t.completed).length,
+      total: tasks.length,
+    });
   };
 
   // run once when userData changes
@@ -102,20 +124,42 @@ export default function HomeScreen() {
       </View>
 
       {/* Progress Card */}
-      <View className="bg-primary-600 rounded-2xl p-6 mb-6 shadow-md">
+      <TouchableOpacity
+        onPress={() => setShowTasks((prev) => !prev)}
+        activeOpacity={0.9}
+        className="bg-primary-600 rounded-2xl p-6 mb-6 shadow-md"
+      >
         <Text className="text-white font-cairo_bold text-lg mb-2">
           تقدمك اليوم
         </Text>
         <Text className="text-primary-100 font-cairo text-sm mb-4">
           لقد أنجزت {progress.completed} من أصل {progress.total} مهام
         </Text>
-        <View className="bg-white h-3 w-full rounded-full overflow-hidden">
+        <View className="bg-primary-400 h-3 w-full rounded-full overflow-hidden">
           <View
-            className="bg-primary-400 h-3"
+            className="bg-white h-3"
             style={{ width: `${(progress.completed / progress.total) * 100}%` }}
           />
         </View>
-      </View>
+
+        {/* Expandable tasks */}
+        <Animated.View style={{ height: animatedHeight, overflow: "hidden" }}>
+          {progress.tasks?.map((task) => (
+            <View
+              key={task.type}
+              className="flex-row items-center mt-4 bg-white/10 rounded-lg p-3"
+            >
+              <Octicons
+                name={task.completed ? "check-circle" : "circle"}
+                size={20}
+                color={task.completed ? "#4ade80" : "#facc15"}
+                style={{ marginRight: 8 }}
+              />
+              <Text className="text-white font-cairo">{task.label}</Text>
+            </View>
+          ))}
+        </Animated.View>
+      </TouchableOpacity>
 
       {/* Quick Actions */}
       <View className="flex-row justify-between mb-8">
