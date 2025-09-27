@@ -5,6 +5,7 @@ import {
   I18nManager,
   TouchableOpacity,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
