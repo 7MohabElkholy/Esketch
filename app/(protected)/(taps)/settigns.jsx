@@ -102,7 +102,7 @@ export default function AccountSettingsScreen() {
         <Text className="font-cairo text-neutral-500">
           في حالة وجود شكاوي او اقتراحات بالرجاء التواصل على 01551152503
         </Text>
-        <Text className="font-cairo text-neutral-500">إصدار رقم (1.0.0)</Text>
+        <Text className="font-cairo text-neutral-500">إصدار رقم (1.1.0)</Text>
       </View>
 
       {/* Edit Profile Modal */}
