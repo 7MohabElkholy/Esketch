@@ -6,10 +6,12 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "channel": "development"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "channel": "preview"
     },
     "production": {
       "autoIncrement": true,
@@ -19,7 +21,8 @@
       "env": {
         "SUPABASE_URL": "SUPABASE_URL",
         "SUPABASE_ANON_KEY": "SUPABASE_ANON_KEY"
-      }
+      },
+      "channel": "production"
     }
   },
   "submit": {
