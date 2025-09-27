@@ -15,11 +15,12 @@ import {
   Cairo_700Bold,
 } from "@expo-google-fonts/cairo";
 import { Alert } from "react-native";
-import { AuthProvider } from "../utils/authContext";
+import { AuthProvider, useAuth } from "../utils/authContext";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const { userData } = useAuth();
   const [loaded] = useFonts({
     Cairo_400Regular,
     Cairo_500Medium,
@@ -46,10 +47,10 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (loaded) {
+    if (loaded && userData) {
       SplashScreen.hide();
     }
-  }, [loaded]);
+  }, [loaded, userData]);
 
   if (!loaded) {
     return null;
